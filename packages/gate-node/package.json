@@ -1,0 +1,21 @@
+{
+  "name": "@fleet/gate-node",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Assurance Gate for Node: signed policy pushes, masking, input checks, AI label, role map, masked logs, traces.",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@opentelemetry/api": "^1.9.0",
+    "@opentelemetry/exporter-trace-otlp-http": "^0.301.0",
+    "@opentelemetry/resources": "^2.0.0",
+    "@opentelemetry/sdk-trace-base": "^2.0.0",
+    "@vercel/blob": "2.4.0"
+  }
+}

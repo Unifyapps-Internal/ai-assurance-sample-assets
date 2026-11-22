@@ -1,0 +1,13 @@
+{
+  "notice": "Test asset. Every record is fabricated.",
+  "seed": 20261113,
+  "asOf": "2026-06-30",
+  "counts": {
+    "smes": 400,
+    "loan_applications": 900,
+    "guarantees": 600,
+    "repayments": 5000,
+    "statement_lines": 300,
+    "contacts": 500
+  }
+}

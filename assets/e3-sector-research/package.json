@@ -1,0 +1,22 @@
+{
+  "name": "@fleet/e3-sector-research",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Sector Research agent. Test asset: all data is fabricated.",
+  "type": "module",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "dev": "tsx src/server.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@google/genai": "^3.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "tsx": "^4.20.0",
+    "typescript": "^5.9.0",
+    "vitest": "^5.1.0"
+  }
+}

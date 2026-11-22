@@ -1,0 +1,70 @@
+{
+  "id": "e6-sme-onboarding-portal",
+  "name": "SME Onboarding Portal",
+  "kind": "web-app",
+  "owner": "Head of SME Onboarding",
+  "steward": "Onboarding Data Steward",
+  "department": "SME Onboarding",
+  "purpose": "Lets onboarding officers find and review the SMEs being onboarded: profile, owner contact, loan applications and a generated plain-language summary. Test asset: all data is fabricated.",
+  "version": "1.0.0",
+  "model": {
+    "provider": "Google",
+    "name": "gemini-2.5-flash",
+    "region": "unknown",
+    "trainingUse": "Free tier of the Gemini API: prompts may be used by the provider to improve its products."
+  },
+  "subProcessors": [
+    {
+      "name": "Google Gemini API",
+      "host": "generativelanguage.googleapis.com",
+      "purpose": "Generates the SME summary",
+      "location": "Outside Qatar (provider-selected region)"
+    },
+    {
+      "name": "Vercel",
+      "host": "vercel.app",
+      "purpose": "Hosts the application and its functions",
+      "location": "Outside Qatar"
+    }
+  ],
+  "data": [
+    {
+      "dataset": "smes",
+      "fields": ["sme_id", "cr_number", "name_en", "name_ar", "sector_code", "region_code", "owner_name", "owner_qid", "owner_phone", "owner_email", "iban", "ref2", "notes", "created_at", "updated_at"],
+      "classification": {
+        "owner_name": "Confidential",
+        "owner_qid": "Restricted",
+        "owner_phone": "Restricted",
+        "owner_email": "Restricted",
+        "iban": "Restricted",
+        "ref2": "Restricted",
+        "notes": "Restricted"
+      },
+      "purpose": "Onboarding and reviewing SME applicants",
+      "retentionDays": 365
+    },
+    {
+      "dataset": "loan_applications",
+      "fields": ["application_id", "sme_id", "amount", "currency", "term_months", "status", "submitted_at"],
+      "classification": {},
+      "purpose": "Showing each SME's applications",
+      "retentionDays": 365
+    },
+    { "dataset": "sectors", "fields": ["code", "name_en", "name_ar"], "classification": {}, "purpose": "Reference list", "retentionDays": 365 },
+    { "dataset": "regions", "fields": ["code", "name_en", "name_ar"], "classification": {}, "purpose": "Reference list", "retentionDays": 365 }
+  ],
+  "lineage": [
+    { "from": "shared-data/smes.json", "to": "list, record and report screens", "transform": "masking by role, aggregation by sector and region" },
+    { "from": "shared-data/loan_applications.json", "to": "record screen", "transform": "join with smes on sme_id" },
+    { "from": "record", "to": "AI summary", "transform": "generation by the declared model" }
+  ],
+  "roles": [
+    { "role": "officer", "routes": ["/", "/record/:id"] },
+    { "role": "manager", "routes": ["/", "/record/:id", "/reports"] },
+    { "role": "admin", "routes": ["/", "/record/:id", "/reports", "/admin"] }
+  ],
+  "retention": { "conversationsDays": 30, "logsDays": 30 },
+  "incident": { "contact": "Onboarding Duty Manager", "notifyWithinHours": 24, "procedureUrl": "/docs/incident.md" },
+  "languages": ["en", "ar"],
+  "gate": { "installed": false }
+}

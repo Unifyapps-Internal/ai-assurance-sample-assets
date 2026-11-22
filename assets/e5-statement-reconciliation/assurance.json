@@ -1,0 +1,55 @@
+{
+  "id": "e5-statement-reconciliation",
+  "name": "Statement Reconciliation",
+  "kind": "workflow",
+  "notice": "Test asset. All data is fabricated.",
+  "owner": "Head of Finance Operations",
+  "steward": "Finance Operations Data Steward",
+  "department": "Finance Operations",
+  "purpose": "Matches loan repayment records to bank statement lines every day and flags the lines that match nothing, so finance officers can follow them up.",
+  "version": "1.0.0",
+  "model": {
+    "provider": "none",
+    "name": "none",
+    "region": "not applicable",
+    "trainingUse": "not applicable: this workflow calls no model; matching is deterministic"
+  },
+  "subProcessors": [
+    { "name": "Vercel", "host": "vercel.com", "purpose": "Hosting of the service and its daily schedule", "location": "Outside Qatar" }
+  ],
+  "data": [
+    {
+      "dataset": "statement_lines",
+      "fields": ["line_id", "value_date", "amount", "currency", "reference", "counterparty_iban"],
+      "classification": { "counterparty_iban": "Restricted" },
+      "purpose": "The bank statement lines to reconcile; the counterparty name is not read",
+      "retentionDays": 30
+    },
+    {
+      "dataset": "repayments",
+      "fields": ["repayment_id", "application_id", "paid_date", "amount", "currency", "status", "payer_iban"],
+      "classification": { "payer_iban": "Restricted" },
+      "purpose": "The repayment records a statement line is matched to",
+      "retentionDays": 30
+    },
+    {
+      "dataset": "loan_applications",
+      "fields": ["application_id", "sector_code"],
+      "classification": {},
+      "purpose": "Checks that a repayment belongs to an application with a valid sector code",
+      "retentionDays": 30
+    },
+    { "dataset": "sectors", "fields": ["code"], "classification": {}, "purpose": "Reference list for sector codes", "retentionDays": 30 },
+    { "dataset": "currencies", "fields": ["code"], "classification": {}, "purpose": "Reference list for currency codes", "retentionDays": 30 }
+  ],
+  "lineage": [
+    { "from": "shared-data/statement_lines.json", "to": "run.output.matches", "transform": "validation, then deterministic matching by reference or by IBAN, amount and date" },
+    { "from": "shared-data/repayments.json", "to": "run.output.matches", "transform": "validation against sectors and currencies, then matching" },
+    { "from": "shared-data/statement_lines.json", "to": "run.output.unmatchedLines", "transform": "lines left without a repayment" }
+  ],
+  "roles": [{ "role": "finance-officer", "routes": ["/api/run", "/api/runs", "/api/logs", "/api/definition"] }],
+  "retention": { "runsDays": 30, "logsDays": 30 },
+  "incident": { "contact": "Finance Operations Service Owner", "notifyWithinHours": 24, "procedureUrl": "/docs/incident.md" },
+  "languages": ["en", "ar"],
+  "gate": { "installed": false }
+}

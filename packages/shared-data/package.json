@@ -1,0 +1,8 @@
+{
+  "name": "@fleet/shared-data",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Fabricated SME-finance dataset. Test asset.",
+  "type": "module",
+  "scripts": { "generate": "node generate.mjs", "test": "vitest run" }
+}

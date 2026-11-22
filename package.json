@@ -1,0 +1,24 @@
+{
+  "name": "assurance-fleet",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Eight fabricated SME-finance test assets and the Assurance Gate. Test asset: all data is fabricated.",
+  "type": "module",
+  "engines": { "node": ">=20" },
+  "workspaces": ["packages/*", "assets/*"],
+  "scripts": {
+    "generate": "node packages/shared-data/generate.mjs",
+    "vendor": "npm run build -w @fleet/gate-node && node scripts/vendor.mjs",
+    "answer-key": "node scripts/answer-key.mjs",
+    "test": "npm run test --workspaces --if-present && vitest run --root scripts",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test:py": "node scripts/pytest.mjs",
+    "smoke": "node scripts/smoke.mjs"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.0",
+    "vitest": "^5.1.0",
+    "tsx": "^4.20.0",
+    "@types/node": "^24.0.0"
+  }
+}

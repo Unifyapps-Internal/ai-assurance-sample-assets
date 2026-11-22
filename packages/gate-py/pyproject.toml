@@ -1,0 +1,16 @@
+[project]
+name = "assurance-gate"
+version = "1.0.0"
+description = "Assurance Gate for Python: signed policy pushes, masking, input checks, AI label, role map, masked logs, traces."
+requires-python = ">=3.11"
+dependencies = []
+
+[project.optional-dependencies]
+telemetry = ["opentelemetry-sdk>=1.30", "opentelemetry-exporter-otlp-proto-http>=1.30"]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["assurance_gate"]

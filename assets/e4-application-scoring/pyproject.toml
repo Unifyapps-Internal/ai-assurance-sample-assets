@@ -1,0 +1,15 @@
+# Vercel reads this file, not requirements.txt, once it exists: the dependencies are the same list, kept in step.
+# The whole API is one FastAPI app in api/index.py, not one function per file under api/.
+[project]
+name = "application-scoring"
+version = "1.0.0"
+requires-python = ">=3.12"
+dependencies = [
+  "fastapi==0.162.5",
+  "uvicorn==0.54.0",
+  "langchain-core==1.8.0",
+  "langchain-google-genai==4.5.0",
+]
+
+[tool.vercel]
+entrypoint = "api.index:app"

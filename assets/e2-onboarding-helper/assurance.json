@@ -1,0 +1,45 @@
+{
+  "id": "e2-onboarding-helper",
+  "name": "Onboarding Helper",
+  "kind": "agent",
+  "notice": "Test asset. All data is fabricated.",
+  "owner": "Head of SME Onboarding",
+  "steward": "Onboarding Data Steward",
+  "department": "SME Onboarding",
+  "purpose": "Answers onboarding officers' questions about an SME's record, its loan applications and its guarantees, from the programme's own data.",
+  "version": "1.0.0",
+  "data": [
+    {
+      "dataset": "smes",
+      "fields": ["sme_id", "cr_number", "name_en", "name_ar", "sector_code", "region_code", "owner_name", "owner_qid", "owner_phone", "iban"],
+      "classification": { "owner_name": "Confidential", "owner_qid": "Restricted", "owner_phone": "Confidential", "iban": "Restricted" },
+      "purpose": "Identify the SME a question is about and report its onboarding record"
+    },
+    {
+      "dataset": "loan_applications",
+      "fields": ["application_id", "sme_id", "amount", "currency", "term_months", "status", "submitted_at", "disbursed_at"],
+      "classification": {},
+      "purpose": "Report the status of an SME's applications"
+    },
+    {
+      "dataset": "guarantees",
+      "fields": ["guarantee_id", "application_id", "sme_id", "amount", "coverage_pct", "currency", "status", "issued_at", "expires_at"],
+      "classification": {},
+      "purpose": "Report the guarantees held for an SME"
+    }
+  ],
+  "lineage": [
+    { "from": "shared-data/smes.json", "to": "answer", "transform": "retrieval by name or CR number, then generation" },
+    { "from": "shared-data/loan_applications.json", "to": "answer", "transform": "retrieval by SME id, then generation" },
+    { "from": "shared-data/guarantees.json", "to": "answer", "transform": "retrieval by SME id, then generation" }
+  ],
+  "tools": [
+    { "name": "lookup_sme", "reads": ["smes"] },
+    { "name": "application_status", "reads": ["loan_applications"] },
+    { "name": "guarantee_status", "reads": ["guarantees"] }
+  ],
+  "roles": [{ "role": "officer", "routes": ["/api/chat"] }],
+  "incident": { "contact": "Onboarding Service Owner", "notifyWithinHours": 24, "procedureUrl": "/docs/incident.md" },
+  "languages": ["en", "ar"],
+  "gate": { "installed": true, "version": "1.0.0" }
+}

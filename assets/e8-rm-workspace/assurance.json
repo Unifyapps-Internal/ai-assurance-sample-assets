@@ -1,0 +1,76 @@
+{
+  "id": "e8-rm-workspace",
+  "name": "RM Workspace",
+  "kind": "web-app",
+  "owner": "Head of SME Relationship Management",
+  "steward": "SME Banking Data Steward",
+  "department": "SME Banking",
+  "purpose": "Gives relationship managers and credit analysts one view of each SME client: profile, owner contact, loan applications and a generated plain-language summary. Test asset: all data is fabricated.",
+  "version": "1.0.0",
+  "model": {
+    "provider": "Google",
+    "name": "gemini-2.5-flash",
+    "region": "unknown",
+    "trainingUse": "Free tier of the Gemini API: prompts may be used by the provider to improve its products. Only masked records are sent."
+  },
+  "subProcessors": [
+    {
+      "name": "Google Gemini API",
+      "host": "generativelanguage.googleapis.com",
+      "purpose": "Generates the SME summary from a masked record",
+      "location": "Outside Qatar (provider-selected region)"
+    },
+    {
+      "name": "Vercel",
+      "host": "vercel.app",
+      "purpose": "Hosts the application and its functions",
+      "location": "Outside Qatar"
+    },
+    {
+      "name": "Vercel Blob",
+      "host": "blob.vercel-storage.com",
+      "purpose": "Stores the Assurance Gate policy document",
+      "location": "Outside Qatar"
+    }
+  ],
+  "data": [
+    {
+      "dataset": "smes",
+      "fields": ["sme_id", "cr_number", "name_en", "name_ar", "sector_code", "region_code", "owner_name", "owner_qid", "owner_phone", "owner_email", "iban", "ref2", "notes", "created_at", "updated_at"],
+      "classification": {
+        "owner_name": "Confidential",
+        "owner_qid": "Restricted",
+        "owner_phone": "Restricted",
+        "owner_email": "Restricted",
+        "iban": "Restricted",
+        "ref2": "Restricted",
+        "notes": "Restricted"
+      },
+      "purpose": "Managing the relationship with each SME client",
+      "retentionDays": 365
+    },
+    {
+      "dataset": "loan_applications",
+      "fields": ["application_id", "sme_id", "amount", "currency", "term_months", "sector_code", "status", "submitted_at"],
+      "classification": {},
+      "purpose": "Showing each client's applications and portfolio reports",
+      "retentionDays": 365
+    },
+    { "dataset": "sectors", "fields": ["code", "name_en", "name_ar"], "classification": {}, "purpose": "Reference list", "retentionDays": 365 },
+    { "dataset": "regions", "fields": ["code", "name_en", "name_ar"], "classification": {}, "purpose": "Reference list", "retentionDays": 365 }
+  ],
+  "lineage": [
+    { "from": "shared-data/smes.json", "to": "list and record screens", "transform": "masking by role" },
+    { "from": "shared-data/loan_applications.json", "to": "record and report screens", "transform": "join with smes on sme_id, aggregation by status and sector" },
+    { "from": "record (masked)", "to": "AI summary", "transform": "generation by the declared model, masked again by role" }
+  ],
+  "roles": [
+    { "role": "rm", "routes": ["/", "/record/:id"] },
+    { "role": "analyst", "routes": ["/", "/record/:id", "/reports"] },
+    { "role": "admin", "routes": ["/", "/record/:id", "/reports", "/admin"] }
+  ],
+  "retention": { "conversationsDays": 30, "logsDays": 30 },
+  "incident": { "contact": "SME Banking Duty Manager", "notifyWithinHours": 24, "procedureUrl": "/docs/incident.md" },
+  "languages": ["en", "ar"],
+  "gate": { "installed": true, "version": "1.0.0" }
+}

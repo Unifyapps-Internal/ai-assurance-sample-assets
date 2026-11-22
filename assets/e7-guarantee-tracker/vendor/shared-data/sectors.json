@@ -1,0 +1,14 @@
+[
+{"code":"TRD","name_en":"Wholesale and retail trade","name_ar":"تجارة الجملة والتجزئة"},
+{"code":"CON","name_en":"Construction and contracting","name_ar":"البناء والمقاولات"},
+{"code":"LOG","name_en":"Transport and logistics","name_ar":"النقل والخدمات اللوجستية"},
+{"code":"FNB","name_en":"Food and beverage","name_ar":"الأغذية والمشروبات"},
+{"code":"MFG","name_en":"Manufacturing","name_ar":"الصناعات التحويلية"},
+{"code":"ICT","name_en":"Information and communication technology","name_ar":"تقنية المعلومات والاتصالات"},
+{"code":"HOS","name_en":"Hospitality and tourism","name_ar":"الضيافة والسياحة"},
+{"code":"PRO","name_en":"Professional services","name_ar":"الخدمات المهنية"},
+{"code":"EDU","name_en":"Education services","name_ar":"الخدمات التعليمية"},
+{"code":"HLT","name_en":"Healthcare services","name_ar":"خدمات الرعاية الصحية"},
+{"code":"AGR","name_en":"Agriculture and fisheries","name_ar":"الزراعة والثروة السمكية"},
+{"code":"ENR","name_en":"Energy services","name_ar":"خدمات الطاقة"}
+]

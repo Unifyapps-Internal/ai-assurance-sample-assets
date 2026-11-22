@@ -1,0 +1,7 @@
+# Development and test tools for the Python packages and assets (gate-py, E1, E4).
+# Install with:  .venv/Scripts/python -m pip install -r requirements-dev.txt
+-r assets/e1-collections-assistant/requirements.txt
+-r assets/e4-application-scoring/requirements.txt
+httpx==0.28.1
+pytest==9.2.0
+ruff==0.17.5

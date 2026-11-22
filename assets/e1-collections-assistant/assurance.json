@@ -1,0 +1,84 @@
+{
+  "id": "e1-collections-assistant",
+  "name": "Collections Assistant",
+  "kind": "agent",
+  "notice": "Test asset. All data is fabricated.",
+  "owner": "Head of Collections",
+  "steward": "Collections Data Steward",
+  "department": "Collections and Recoveries",
+  "purpose": "Answers collections officers' questions about an SME's record, a loan's repayment schedule and the status of its guarantees, from the programme's own data.",
+  "version": "1.0.0",
+  "model": {
+    "provider": "Google",
+    "name": "gemini-2.5-flash",
+    "region": "Global endpoint of the provider, outside Qatar",
+    "trainingUse": "Free tier of the provider's API: prompts and answers may be used by the provider to improve its products."
+  },
+  "subProcessors": [
+    {
+      "name": "Google Gemini API",
+      "host": "generativelanguage.googleapis.com",
+      "purpose": "Generates the answer from the question and the tool results",
+      "location": "Global, outside Qatar"
+    },
+    {
+      "name": "Vercel",
+      "host": "vercel.com",
+      "purpose": "Hosting of the service and of the gate's policy store (blob.vercel-storage.com)",
+      "location": "Outside Qatar"
+    },
+    {
+      "name": "Trace collector",
+      "host": "set by UNIFYAPPS_COLLECTOR_ENDPOINT",
+      "purpose": "Receives masked traces of each turn when configured",
+      "location": "As configured by the operator"
+    }
+  ],
+  "data": [
+    {
+      "dataset": "smes",
+      "fields": ["sme_id", "cr_number", "name_en", "name_ar", "sector_code", "region_code", "owner_name", "owner_qid", "owner_phone", "iban"],
+      "classification": { "owner_name": "Confidential", "owner_qid": "Restricted", "owner_phone": "Confidential", "iban": "Restricted" },
+      "purpose": "Identify the SME a question is about",
+      "retentionDays": 30
+    },
+    {
+      "dataset": "loan_applications",
+      "fields": ["application_id", "sme_id", "amount", "currency", "status"],
+      "classification": {},
+      "purpose": "Relate an SME to its loans",
+      "retentionDays": 30
+    },
+    {
+      "dataset": "repayments",
+      "fields": ["repayment_id", "application_id", "installment", "due_date", "paid_date", "amount", "currency", "status", "payer_iban"],
+      "classification": { "payer_iban": "Restricted" },
+      "purpose": "Report a loan's repayment schedule and arrears",
+      "retentionDays": 30
+    },
+    {
+      "dataset": "guarantees",
+      "fields": ["guarantee_id", "application_id", "sme_id", "status", "amount", "currency", "coverage_pct", "issued_at", "expires_at", "guarantor_name", "guarantor_qid"],
+      "classification": { "guarantor_name": "Confidential", "guarantor_qid": "Restricted" },
+      "purpose": "Report the status of a loan's guarantees",
+      "retentionDays": 30
+    }
+  ],
+  "lineage": [
+    { "from": "shared-data/smes.json", "to": "tool lookup_sme", "transform": "name, CR number or id match" },
+    { "from": "shared-data/loan_applications.json", "to": "tool lookup_sme, tool list_repayments", "transform": "join on sme_id and application_id" },
+    { "from": "shared-data/repayments.json", "to": "tool list_repayments", "transform": "filter by application, status summary" },
+    { "from": "shared-data/guarantees.json", "to": "tool guarantee_status", "transform": "filter by guarantee, application or SME id" },
+    { "from": "tool results", "to": "answer", "transform": "retrieval + generation, then masking and AI label by the Assurance Gate" }
+  ],
+  "tools": [
+    { "name": "lookup_sme", "reads": ["smes", "loan_applications"], "writes": [] },
+    { "name": "list_repayments", "reads": ["loan_applications", "repayments"], "writes": [] },
+    { "name": "guarantee_status", "reads": ["guarantees"], "writes": [] }
+  ],
+  "roles": [{ "role": "officer", "routes": ["/api/chat"] }],
+  "retention": { "conversationsDays": 30, "logsDays": 30 },
+  "incident": { "contact": "Collections Service Owner", "notifyWithinHours": 24, "procedureUrl": "/docs/incident.md" },
+  "languages": ["en", "ar"],
+  "gate": { "installed": true, "version": "1.0.0" }
+}

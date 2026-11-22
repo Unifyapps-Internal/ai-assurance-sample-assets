@@ -1,0 +1,19 @@
+[tool.pytest.ini_options]
+testpaths = [
+  "packages/gate-py/tests",
+  "assets/e1-collections-assistant/tests",
+  "assets/e4-application-scoring/tests",
+]
+addopts = "--import-mode=importlib -q"
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+extend-exclude = ["node_modules", ".venv"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "SIM", "C4", "RUF"]
+ignore = ["RUF001", "RUF002", "RUF003"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["assurance_gate", "collections_assistant", "application_scoring", "vendor"]

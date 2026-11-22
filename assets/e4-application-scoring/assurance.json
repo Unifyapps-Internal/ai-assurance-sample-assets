@@ -1,0 +1,56 @@
+{
+  "id": "e4-application-scoring",
+  "name": "Application Scoring",
+  "kind": "workflow",
+  "notice": "Test asset. All data is fabricated.",
+  "owner": "Head of Credit Underwriting",
+  "steward": "Credit Data Steward",
+  "department": "Credit Underwriting",
+  "purpose": "Validates SME loan applications, scores them with three explicit rules (debt service ratio, years in business, sector) and adds a two-sentence explanation of each score for the credit officer.",
+  "version": "1.0.0",
+  "model": {
+    "provider": "Google",
+    "name": "gemini-2.5-flash",
+    "region": "Global endpoint of the provider, outside Qatar",
+    "trainingUse": "Free tier of the provider's API: prompts and answers may be used by the provider to improve its products."
+  },
+  "subProcessors": [
+    {
+      "name": "Google Gemini API",
+      "host": "generativelanguage.googleapis.com",
+      "purpose": "Writes the two-sentence rationale from the score and its components (no applicant identity is sent)",
+      "location": "Global, outside Qatar"
+    },
+    {
+      "name": "Vercel",
+      "host": "vercel.com",
+      "purpose": "Hosting of the service and its daily schedule",
+      "location": "Outside Qatar"
+    }
+  ],
+  "data": [
+    {
+      "dataset": "loan_applications",
+      "fields": ["application_id", "sme_id", "applicant_name", "applicant_qid", "applicant_phone", "amount", "currency", "term_months", "sector_code", "annual_revenue", "annual_debt_service", "years_in_business", "status", "submitted_at"],
+      "classification": { "applicant_name": "Confidential", "applicant_qid": "Restricted", "applicant_phone": "Confidential" },
+      "purpose": "Score each application and explain the score"
+    },
+    {
+      "dataset": "sectors",
+      "fields": ["code", "name_en", "name_ar"],
+      "classification": {},
+      "purpose": "Reference list of sector codes"
+    }
+  ],
+  "lineage": [
+    { "from": "shared-data/loan_applications.json", "to": "step load_applications", "transform": "selection of the applications to score" },
+    { "from": "step load_applications", "to": "step validate", "transform": "completeness and range checks" },
+    { "from": "step validate, step fx_rate", "to": "step score", "transform": "rule-based score out of 100 and band" },
+    { "from": "step score", "to": "step rationale", "transform": "generation of a two-sentence explanation from figures only" },
+    { "from": "step rationale", "to": "run store (GET /api/runs)", "transform": "result record per application" }
+  ],
+  "roles": [{ "role": "credit officer", "routes": ["/api/run", "/api/runs", "/api/definition", "/api/logs"] }],
+  "incident": { "contact": "Credit Underwriting Service Owner", "notifyWithinHours": 24, "procedureUrl": "/docs/incident.md" },
+  "languages": ["en"],
+  "gate": { "installed": false }
+}
